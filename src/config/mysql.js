@@ -1,0 +1,15 @@
+const mysql = require("mysql2");
+const connection = mysql.createConnection({
+	host: "localhost",
+	user: "root",
+	password: "",
+	database: "clover-hire",
+});
+
+connection.connect((err) => {
+	if (err) {
+		console.log("Failed to connect database...");
+	} else {
+		console.log("Successfully connect database...");
+	}
+});
