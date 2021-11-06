@@ -14,7 +14,7 @@ app.use(morgan("dev"));
 app.use(helmet());
 app.use(xss());
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use("/", RouterNavigation);
