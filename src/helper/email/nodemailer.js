@@ -4,7 +4,6 @@ const path = require("path");
 module.exports = {
 	sendEmail: (data) =>
 		new Promise((resolve, reject) => {
-			console.log(data);
 			let transporter = nodemailer.createTransport({
 				host: "smtp.gmail.com",
 				port: 587,
@@ -33,7 +32,14 @@ module.exports = {
 				to: data.to, // receiver list,
 				template: data.template,
 				subject: data.subject,
-				context: data.dataHire,
+				context: data.data,
+				attachments: [
+					{
+						filename: "mail-box.png",
+						path: `${__dirname}/../../../public/images/mail-box.png`,
+						cid: "mail-box",
+					},
+				],
 			};
 
 			// send email transport object
@@ -41,7 +47,6 @@ module.exports = {
 				if (error) {
 					reject(error);
 				} else {
-					console.log(info);
 					resolve(info);
 				}
 			});

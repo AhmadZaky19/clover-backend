@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Verification</title>
+
+  <style>
+    * {
+      font-family: 'Open Sans', sans-serif;
+    }
+
+    .email-verification {
+      text-align: center;
+    }
+
+    .mail-box {
+      width: 300px;
+      height: 250px;
+    }
+
+    .email-verification-title h3 {
+      font-size: 36px;
+      color: #1F2A36;
+
+      font-weight: bold;
+    }
+
+    .email-verification-paragraph p {
+      font-size: 16px;
+      color: #46505C;
+    }
+
+    .email-verification-container-button {
+      margin: 60px 0px;
+    }
+
+    .email-verification-button {
+      background-color: #5E50A1;
+      border: none;
+      color: #ffffff;
+      font-weight: bold;
+      padding: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 0px;
+    }
+  </style>
+
+</head>
+
+<body>
+  <section class="email-verification">
+    <img src="cid:mail-box" class="mail-box" alt="Mail Box">
+
+    <div class="email-verification-title">
+      <h3>Verify your email address</h3>
+    </div>
+    <div class="email-verification-paragraph">
+      <p>Thank you {{ field.nama }}, because you have registered your account {{ field.email }} with <b>Clover Hire</b>, now
+        you can activate your email
+        below</p>
+    </div>
+    <div class="email-verification-container-button">
+      <a href="`{{ callbackEndPoint }}`" class="email-verification-button">
+        <span style="color: white">Verify Your Email</span>
+      </a>
+    </div>
+  </section>
+  <footer>
+    <p>&copy; 2021 <b>Clover Hire</b> Team, All Rights Reserved</p>
+  </footer>
+</body>
+
+</html>

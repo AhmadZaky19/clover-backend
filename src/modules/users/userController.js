@@ -1,6 +1,6 @@
-const helperResponse = require("../../helpers/response");
+const helperResponse = require("../../helper/wrapper");
 const userModel = require("./userModel");
-const { hireInvitation } = require("../../helpers/email/nodemailer");
+const { hireInvitation } = require("../../helper/email/nodemailer");
 const { v4: uuid } = require("uuid");
 module.exports = {
 	helloUser: async (request, response) => {
