@@ -18,5 +18,6 @@ Router.patch(
   middlewareMulter,
   userController.updateImage
 );
+Router.patch("/update-password", auth, userController.updatePassword);
 Router.post("/hire-pekerja", auth, userController.hirePekerja);
 module.exports = Router;

@@ -3,6 +3,7 @@ const userModel = require("./userModel");
 const { hireInvitation } = require("../../helper/email/nodemailer");
 const deleteFile = require("../../helper/uploads");
 const { v4: uuid } = require("uuid");
+const bcrypt = require("bcrypt");
 
 module.exports = {
   helloUser: async (request, response) => {
@@ -202,6 +203,50 @@ module.exports = {
         "Success update image user",
         result
       );
+    } catch (error) {
+      return helperResponse.response(
+        res,
+        400,
+        `Bad request : ${error.message}`,
+        null
+      );
+    }
+  },
+
+  updatePassword: async (req, res) => {
+    try {
+      const { id } = req.decodeToken;
+      const { newPassword, confirmPassword } = req.body;
+
+      const user = await userModel.getUserById(id);
+      if (user.length < 1) {
+        return helperResponse.response(
+          res,
+          404,
+          `User by id ${id} not found`,
+          null
+        );
+      }
+
+      if (newPassword !== confirmPassword) {
+        return helperResponse.response(
+          res,
+          400,
+          `Password does not match`,
+          null
+        );
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(newPassword, salt);
+
+      const setData = { password: passwordHash };
+
+      const result = await userModel.updateUser(setData, id);
+
+      return helperResponse.response(res, 200, `Success update password`, {
+        id: result.id,
+      });
     } catch (error) {
       return helperResponse.response(
         res,
