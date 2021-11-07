@@ -13,14 +13,12 @@ module.exports = {
 			// PROSES PENGECEKAN EMAIL SUDAH PERNAH TERDAFTAR ATAU BLM DI DATABASE
 			// PROSES ENCRYPT PASSWORD
 			const hashPassword = await bcryptjs.hash(password, 10);
-			const hashConfirmPassword = bcryptjs.hashSync(confirmPassword, 10);
 			const setData = {
 				id: uuidv4(),
 				nama,
 				email,
 				noHandphone,
 				password: hashPassword,
-				confirmPassword: hashConfirmPassword,
 				role: "Pekerja",
 			};
 
