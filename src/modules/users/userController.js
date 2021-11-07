@@ -1,6 +1,7 @@
 const helperResponse = require("../../helper/wrapper");
 const userModel = require("./userModel");
 const { hireInvitation } = require("../../helper/email/nodemailer");
+const deleteFile = require("../../helper/uploads");
 const { v4: uuid } = require("uuid");
 
 module.exports = {
@@ -91,6 +92,123 @@ module.exports = {
       helperResponse.response(res, 200, "Success Get User By Id!", result);
     } catch (error) {
       helperResponse.response(res, 400, `Bad Request : ${error}`, null);
+    }
+  },
+
+  updateUser: async (req, res) => {
+    try {
+      const { id } = req.decodeToken;
+      const {
+        nama,
+        email,
+        perusahaan,
+        bidangPerusahaan,
+        jobDesk,
+        jobStatus,
+        noHandPhone,
+        skill,
+        domisili,
+        description,
+        instagram,
+        github,
+        gitlab,
+        linkedin,
+      } = req.body;
+
+      const user = await userModel.getUserById(id);
+      if (user.length < 1) {
+        return helperResponse.response(
+          res,
+          404,
+          `User by id ${id} not found`,
+          null
+        );
+      }
+
+      const setData = {
+        nama,
+        email,
+        perusahaan,
+        bidangPerusahaan,
+        jobDesk,
+        jobStatus,
+        noHandPhone,
+        skill,
+        image: req.file ? req.file.filename : null,
+        domisili,
+        description,
+        instagram,
+        github,
+        gitlab,
+        linkedin,
+        updatedAt: new Date(Date()),
+      };
+
+      Object.keys(setData).forEach((property) => {
+        if (!setData[property]) {
+          delete setData[property];
+        }
+      });
+
+      if (req.file && user[0].image) {
+        deleteFile(`public/uploads/user/${user[0].image}`);
+      }
+
+      const result = await userModel.updateUser(setData, id);
+
+      return helperResponse.response(
+        res,
+        200,
+        `Success update profile`,
+        result
+      );
+    } catch (error) {
+      return helperResponse.response(
+        res,
+        400,
+        `Bad request : ${error.message}`,
+        null
+      );
+    }
+  },
+
+  updateImage: async (req, res) => {
+    try {
+      const { id } = req.decodeToken;
+
+      const user = await userModel.getUserById(id);
+      if (user.length < 1) {
+        return helperResponse.response(
+          res,
+          404,
+          `User by id ${id} not found`,
+          null
+        );
+      }
+
+      if (user[0].image) {
+        deleteFile(`public/uploads/user/${user[0].image}`);
+      }
+
+      const setData = {
+        image: req.file ? req.file.filename : null,
+        updatedAt: new Date(Date()),
+      };
+
+      const result = await userModel.updateUser(setData, id);
+      return helperResponse.response(
+        res,
+        200,
+        "Success update image user",
+        result
+      );
+    } catch (error) {
+      return helperResponse.response(
+        res,
+        400,
+        `Bad request : ${error.message}`,
+        null
+      );
     }
   },
 };

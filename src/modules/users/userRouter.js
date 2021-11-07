@@ -6,9 +6,17 @@ const {
   isWorker,
   isRecruiter,
 } = require("../../middleware/authentication");
+const middlewareMulter = require("../../middleware/multer");
 
 // Router.get("/", auth, isRecruiter, userController.helloUser);
-Router.get("/", userController.getAllUser);
-Router.get("/:id", userController.getUserById);
+Router.get("/", auth, userController.getAllUser);
+Router.get("/:id", auth, userController.getUserById);
+Router.patch("/", auth, middlewareMulter, userController.updateUser);
+Router.patch(
+  "/update-image",
+  auth,
+  middlewareMulter,
+  userController.updateImage
+);
 Router.post("/hire-pekerja", auth, userController.hirePekerja);
 module.exports = Router;

@@ -42,4 +42,23 @@ module.exports = {
         }
       );
     }),
+
+  updateUser: (data, id) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        "UPDATE users SET ? WHERE id = ?",
+        [data, id],
+        (error, results) => {
+          if (!error) {
+            const newResult = {
+              id,
+              ...data,
+            };
+            resolve(newResult);
+          } else {
+            reject(new Error(`Message ${error.message}`));
+          }
+        }
+      );
+    }),
 };
