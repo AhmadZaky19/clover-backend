@@ -3,12 +3,12 @@ const connection = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "",
-  database: "clover_hire",
+  database: "clover-hire",
 });
 
 connection.connect((err) => {
   if (err) {
-    console.log("Failed to connect database...");
+    console.log("Failed to connect database...", err.message);
   } else {
     console.log("Successfully connect database...");
   }
