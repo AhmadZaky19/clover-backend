@@ -95,7 +95,7 @@ module.exports = {
 					);
 				}
 			}
-
+			const dataEmail = setDataPerekrut.email;
 			const tokenEmail = jwt.sign({ dataEmail }, "Cl0v3RH1R3", {
 				expiresIn: "20s",
 			});
