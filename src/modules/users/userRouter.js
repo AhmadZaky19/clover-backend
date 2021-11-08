@@ -14,20 +14,9 @@ const {
 } = require("../../middleware/redis");
 
 // Router.get("/", auth, isRecruiter, userController.helloUser);
-Router.get(
-  "/",
-  auth,
-  // getUserRedis,
-  userController.getAllUser
-);
+Router.get("/", auth, getUserRedis, isRecruiter, userController.getAllUser);
 Router.get("/:id", auth, getUserByIdRedis, userController.getUserById);
-Router.patch(
-  "/",
-  auth,
-  middlewareMulter,
-  clearUserRedis,
-  userController.updateUser
-);
+Router.patch("/", auth, clearUserRedis, userController.updateUser);
 
 Router.patch(
   "/update-image",
@@ -43,6 +32,6 @@ Router.patch(
   clearUserRedis,
   userController.updatePassword
 );
-Router.post("/hire-pekerja", auth, userController.hirePekerja);
+Router.post("/hire-pekerja", auth, isRecruiter, userController.hirePekerja);
 
 module.exports = Router;

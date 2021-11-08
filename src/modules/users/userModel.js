@@ -15,15 +15,7 @@ module.exports = {
       });
     }),
 
-  getAllUser: (
-    limit,
-    offset,
-    searchSkill,
-    jobStatus,
-    sortByName,
-    sortBySkill,
-    sortByLocation
-  ) =>
+  getAllUser: (limit, offset, searchSkill, jobStatus, sortByName) =>
     new Promise((resolve, reject) => {
       connection.query(
         `SELECT * FROM users WHERE COALESCE(skill, '') LIKE '%${searchSkill}%' AND COALESCE(jobStatus, '') LIKE '%${jobStatus}%' ORDER BY ${sortByName} LIMIT ? OFFSET ?`,

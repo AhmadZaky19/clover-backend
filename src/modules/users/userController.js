@@ -191,7 +191,6 @@ module.exports = {
         jobStatus,
         noHandPhone,
         skill,
-        image: req.file ? req.file.filename : null,
         domisili,
         description,
         instagram,
@@ -206,10 +205,6 @@ module.exports = {
           delete setData[property];
         }
       });
-
-      if (req.file && user[0].image) {
-        deleteFile(`public/uploads/user/${user[0].image}`);
-      }
 
       const result = await userModel.updateUser(setData, id);
 
