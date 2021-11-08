@@ -23,19 +23,37 @@ module.exports = {
 				role: "Pekerja",
 			};
 
+			const dataEmail = setData.email;
+
+			const tokenEmail = jwt.sign({ dataEmail }, "Cl0v3RH1R3", {
+				expiresIn: "20s",
+			});
+
+			// PROSES SEND EMAIL
+			const setDataEmail = {
+				to: email,
+				subject: "Email Verification",
+				template: "index",
+				data: {
+					field: setData,
+					callbackEndPoint: `http://${req.get("host")}/auth/activate-email/${
+						setData.id
+					}/${tokenEmail}`,
+				},
+			};
+
 			if (password === confirmPassword) {
+				await sendEmail(setDataEmail);
 				const result = await authModel.register(setData);
-				return helperWrapper.response(res, 200, "success Registred", result);
+				return helperWrapper.response(
+					res,
+					200,
+					"Success Registred, please verification your email!",
+					result
+				);
 			} else {
 				return helperWrapper.response(res, 404, "pass tidak sama", null);
 			}
-
-			//   const setDataEmail = {
-			//     to: email,
-			//     subject: "email verification !",
-			//     template: "email-verification",
-			//   };
-			//   await sendMail(setDataEmail);
 		} catch (error) {
 			return helperWrapper.response(
 				res,
@@ -78,8 +96,6 @@ module.exports = {
 				}
 			}
 
-			const dataEmail = setDataPerekrut.email;
-
 			const tokenEmail = jwt.sign({ dataEmail }, "Cl0v3RH1R3", {
 				expiresIn: "20s",
 			});
@@ -103,7 +119,7 @@ module.exports = {
 				return helperWrapper.response(
 					response,
 					200,
-					"Success Registration!",
+					"Success registration, please verification your email!",
 					perekrut
 				);
 			} else {
