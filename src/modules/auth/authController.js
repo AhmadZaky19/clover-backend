@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcryptjs = require("bcrypt");
 const helperWrapper = require("../../helper/wrapper");
 const authModel = require("./authModel");
-const { sendEmail } = require("../../helper/email/nodemailer");
+const { sendEmail, resetPassword } = require("../../helper/email/nodemailer");
 
 module.exports = {
 	registerPekerja: async (req, res) => {
@@ -192,6 +192,84 @@ module.exports = {
 						"Sucessfully Activate Email!",
 						users
 					);
+				}
+			});
+		} catch (error) {
+			return helperWrapper.response(
+				response,
+				400,
+				`Bad Request : ${error.message}`
+			);
+		}
+	},
+	calbackForgotPassword: async function (request, response) {
+		try {
+			const { email } = request.body;
+			const user = await authModel.getUserByEmail(email);
+			if (user.length < 1) {
+				return helperWrapper.response(response, 404, "user not found!", null);
+			}
+			const key = jwt.sign({ email }, "CL0V3RH1R3", { expiresIn: "1h" });
+			const keyUserId = user[0].id;
+			const setDataEmail = {
+				to: email,
+				subject: "Reset Password",
+				template: "index",
+				data: {
+					email,
+					callbackEndPoint: `http://${request.get(
+						"host"
+					)}/auth/forgot-password/${keyUserId}/${key}`,
+				},
+			};
+			await resetPassword(setDataEmail);
+			return helperWrapper.response(
+				response,
+				200,
+				"Please Check email, for confirm your email!",
+				null
+			);
+		} catch (error) {
+			return helperWrapper.response(
+				response,
+				400,
+				`Bad Request : ${error.message}`
+			);
+		}
+	},
+	forgotPassword: async function (request, response) {
+		try {
+			const { token, id } = request.params;
+			const { newPassword, confirmPassword } = request.body;
+			jwt.verify(token, "CL0V3RH1R3", async (error, results) => {
+				if (error) {
+					return helperWrapper.response(
+						response,
+						403,
+						"Waktu aktifasi sudah habis, silahkan aktifasi ulang!",
+						null
+					);
+				} else {
+					if (newPassword === confirmPassword) {
+						const newPasswordHash = await bcryptjs.hash(confirmPassword, 10);
+						const newDataPassword = await authModel.updatePassword(
+							newPasswordHash,
+							id
+						);
+						return helperWrapper.response(
+							response,
+							200,
+							"Success Update new Password!",
+							newDataPassword
+						);
+					} else {
+						return helperWrapper.response(
+							response,
+							409,
+							"Password dont match!",
+							null
+						);
+					}
 				}
 			});
 		} catch (error) {

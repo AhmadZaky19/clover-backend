@@ -44,6 +44,20 @@ module.exports = {
 				}
 			);
 		}),
+	getUserById: (id) =>
+		new Promise((resolve, reject) => {
+			connection.query(
+				"SELECT * FROM users WHERE id = ?",
+				id,
+				(error, result) => {
+					if (!error) {
+						resolve(result);
+					} else {
+						reject(new Error(`SQL : ${error.sqlMessage}`));
+					}
+				}
+			);
+		}),
 	activateEmailUser: (status, id) =>
 		new Promise((resolve, reject) => {
 			connection.query(
@@ -61,5 +75,25 @@ module.exports = {
 					}
 				}
 			);
+		}),
+	updatePassword: (password, id) =>
+		new Promise((resolve, reject) => {
+			const query = connection.query(
+				"UPDATE users SET password = ? WHERE id = ?",
+				[password, id],
+				(error, results) => {
+					if (!error) {
+						const newSetData = {
+							id,
+							password,
+						};
+						delete newSetData.password;
+						resolve(newSetData);
+					} else {
+						reject(new Error(`Message : ${error.message}`));
+					}
+				}
+			);
+			console.log(query.sql);
 		}),
 };
