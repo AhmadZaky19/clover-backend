@@ -9,8 +9,5 @@ const {
 
 Router.get("/", auth, isRecruiter, userController.helloUser);
 Router.post("/hire-pekerja", auth, userController.hirePekerja);
-Router.post("/experience", userController.postExperience)
-Router.get("/experience/:user_id", userController.getExperienceByUserId)
-Router.patch("/experience/:id", userController.updateExperience)
-Router.delete("/experience/:id", userController.deleteExperience)
+
 module.exports = Router;
