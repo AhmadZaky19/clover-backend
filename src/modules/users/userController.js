@@ -62,22 +62,69 @@ module.exports = {
         sortByName,
         sortBySkill,
         sortByLocation,
-        status,
+        jobStatus,
       } = req.query;
 
-      // let offset = page * limit - limit;
-      // const totalData = await userModel.getCountUser(search);
-      // const totalPage = Math.ceil(totalData / limit);
+      page = Number(page) || 1;
+      limit = Number(limit) || 4;
+      sortByName = sortByName || "nama ASC";
+      searchSkill = searchSkill || "";
+      jobStatus = jobStatus || "";
 
-      const result = await userModel.getAllUser();
+      let offset = page * limit - limit;
+      const totalData = await userModel.getCountUser(searchSkill, jobStatus);
+      const totalPage = Math.ceil(totalData / limit);
+
+      if (totalPage < page) {
+        offset = 0;
+        page = 1;
+      }
+
+      const pageInfo = {
+        page,
+        totalPage,
+        limit,
+        totalData,
+      };
+
+      const result = await userModel.getAllUser(
+        limit,
+        offset,
+        searchSkill,
+        jobStatus,
+        sortByName,
+        sortBySkill,
+        sortByLocation
+      );
+
+      const newResult = result.map((item) => {
+        const newSkill = item.skill.split(", ");
+
+        const newData = {
+          ...item,
+          skill: newSkill,
+        };
+
+        return newData;
+      });
+
+      if (result.length < 1) {
+        return helperResponse.response(res, 404, `Data not found !`, null);
+      }
 
       redis.setex(
         `getUser:${JSON.stringify(req.query)}`,
         3600,
-        JSON.stringify({ result })
+        JSON.stringify({ result, pageInfo })
       );
 
-      helperResponse.response(res, 200, "Success Get All Users Data!", result);
+      helperResponse.response(
+        res,
+        200,
+        "Success Get All Users Data!",
+        newResult,
+        pageInfo
+      );
     } catch (error) {
       helperResponse.response(res, 400, `Bad Request : ${error}`, null);
     }

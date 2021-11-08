@@ -15,15 +15,41 @@ module.exports = {
       });
     }),
 
-  getAllUser: () =>
+  getAllUser: (
+    limit,
+    offset,
+    searchSkill,
+    jobStatus,
+    sortByName,
+    sortBySkill,
+    sortByLocation
+  ) =>
     new Promise((resolve, reject) => {
-      connection.query("SELECT * FROM users", (error, results) => {
-        if (!error) {
-          resolve(results);
-        } else {
-          reject(new Error(`Message ${error.message}`));
+      connection.query(
+        `SELECT * FROM users WHERE COALESCE(skill, '') LIKE '%${searchSkill}%' AND COALESCE(jobStatus, '') LIKE '%${jobStatus}%' ORDER BY ${sortByName} LIMIT ? OFFSET ?`,
+        [limit, offset],
+        (error, results) => {
+          if (!error) {
+            resolve(results);
+          } else {
+            reject(new Error(`Message ${error.message}`));
+          }
         }
-      });
+      );
+    }),
+
+  getCountUser: (searchSkill, jobStatus) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT COUNT(*) AS total FROM users WHERE COALESCE(skill, '') LIKE '%${searchSkill}%' AND COALESCE(jobStatus, '') LIKE '%${jobStatus}%'`,
+        (error, results) => {
+          if (!error) {
+            resolve(results[0].total);
+          } else {
+            reject(new Error(`Message ${error.message}`));
+          }
+        }
+      );
     }),
 
   getUserById: (id) =>

@@ -14,7 +14,12 @@ const {
 } = require("../../middleware/redis");
 
 // Router.get("/", auth, isRecruiter, userController.helloUser);
-Router.get("/", auth, getUserRedis, userController.getAllUser);
+Router.get(
+  "/",
+  auth,
+  // getUserRedis,
+  userController.getAllUser
+);
 Router.get("/:id", auth, getUserByIdRedis, userController.getUserById);
 Router.patch(
   "/",
