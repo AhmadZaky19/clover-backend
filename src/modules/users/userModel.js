@@ -15,6 +15,47 @@ module.exports = {
 			});
 		}),
 
+	getUserByEmail: (email) =>
+		new Promise((resolve, reject) => {
+			connection.query(
+				"SELECT * FROM users WHERE email = ?",
+				email,
+				(error, result) => {
+					if (!error) {
+						resolve(result);
+					} else {
+						reject(new Error(`SQL : ${error.sqlMessage}`));
+					}
+				}
+			);
+		}),
+	getPekerjaById: (id) =>
+		new Promise((resolve, reject) => {
+			connection.query(
+				"SELECT * FROM users WHERE id = ?",
+				id,
+				(error, results) => {
+					if (!error) {
+						resolve(results);
+					} else {
+						reject(new Error(`SQL : ${error.message}`));
+					}
+				}
+			);
+		}),
+	postHirePekerja: (data) =>
+		new Promise((resolve, reject) => {
+			connection.query("INSERT INTO hire SET ?", data, (error, results) => {
+				if (!error) {
+					const newResults = {
+						...data,
+					};
+					resolve(newResults);
+				} else {
+					reject(new Error(`Message ${error.message}`));
+				}
+			});
+		}),
 	getAllUser: (limit, offset, searchSkill, jobStatus, sortByName) =>
 		new Promise((resolve, reject) => {
 			connection.query(
@@ -29,7 +70,6 @@ module.exports = {
 				}
 			);
 		}),
-
 	getCountUser: (searchSkill, jobStatus) =>
 		new Promise((resolve, reject) => {
 			connection.query(
@@ -43,7 +83,6 @@ module.exports = {
 				}
 			);
 		}),
-
 	getUserById: (id) =>
 		new Promise((resolve, reject) => {
 			connection.query(
@@ -60,7 +99,6 @@ module.exports = {
 				}
 			);
 		}),
-
 	updateUser: (data, id) =>
 		new Promise((resolve, reject) => {
 			connection.query(
@@ -78,19 +116,6 @@ module.exports = {
 					}
 				}
 			);
-		}),
-	postHirePekerja: (data) =>
-		new Promise((resolve, reject) => {
-			connection.query("INSERT INTO hire SET ?", data, (error, results) => {
-				if (!error) {
-					const newResults = {
-						...data,
-					};
-					resolve(newResults);
-				} else {
-					reject(new Error(`Message ${error.message}`));
-				}
-			});
 		}),
 	postExperience: (data) =>
 		new Promise((resolve, reject) => {
