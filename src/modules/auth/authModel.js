@@ -30,34 +30,6 @@ module.exports = {
 				}
 			});
 		}),
-	getUserByEmail: (email) =>
-		new Promise((resolve, reject) => {
-			connection.query(
-				"SELECT * FROM users WHERE email = ?",
-				email,
-				(error, result) => {
-					if (!error) {
-						resolve(result);
-					} else {
-						reject(new Error(`SQL : ${error.sqlMessage}`));
-					}
-				}
-			);
-		}),
-	getUserById: (id) =>
-		new Promise((resolve, reject) => {
-			connection.query(
-				"SELECT * FROM users WHERE id = ?",
-				id,
-				(error, result) => {
-					if (!error) {
-						resolve(result);
-					} else {
-						reject(new Error(`SQL : ${error.sqlMessage}`));
-					}
-				}
-			);
-		}),
 	activateEmailUser: (status, id) =>
 		new Promise((resolve, reject) => {
 			connection.query(

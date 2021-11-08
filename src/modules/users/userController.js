@@ -9,9 +9,12 @@ module.exports = {
 	hirePekerja: async function (request, response) {
 		try {
 			// user_id => decode token after login
+			const userLoggedId = request.decodeToken.id;
 			const { user_id, tujuan_pesan, pesan } = request.body;
 			const setDataHire = { id: uuid(), user_id, tujuan_pesan, pesan };
-
+			const perekrut = await userModel.getUserById(userLoggedId);
+			const pekerja = await userModel.getPekerjaById(user_id);
+			const emailPekerja = pekerja[0].email;
 			for (const propertyForm in setDataHire) {
 				if (setDataHire[propertyForm] === "") {
 					return helperResponse.response(
@@ -23,25 +26,37 @@ module.exports = {
 				}
 			}
 			const dataHire = await userModel.postHirePekerja(setDataHire);
+			let setDataToObj;
+			perekrut.map((value) => {
+				setDataToObj = value;
+			});
+
+			const setNewDataHire = {
+				perushaan: setDataToObj.perusahaan,
+				bidangPerusahaan: setDataToObj.bidangPerusahaan,
+				pesan: dataHire.pesan,
+				tujuan_pesan: dataHire.tujuan_pesan,
+			};
 
 			const optionsDataHire = {
-				to: "rinosatyaputra.id@gmail.com",
+				to: emailPekerja,
 				subject:
 					"Clover Hire, Congratulations, you have been chosen to be part of our partner company",
 				template: "index",
 				data: {
-					tujuan_pesan: dataHire.tujuan_pesan,
-					pesan: dataHire.pesan,
+					perusahaan: setNewDataHire.perushaan,
+					bidangPerusahaan: setNewDataHire.bidangPerusahaan,
+					tujuan_pesan: setNewDataHire.tujuan_pesan,
+					pesan: setNewDataHire.pesan,
 				},
 			};
-			console.log(optionsDataHire);
 			await hireInvitation(optionsDataHire);
 
 			helperResponse.response(
 				response,
 				200,
-				"Success Send Message to worker!",
-				dataHire
+				"Success Send Message to worker!"
+				// dataHire
 			);
 		} catch (error) {
 			helperResponse.response(response, 400, `Bad Request : ${error}`, null);

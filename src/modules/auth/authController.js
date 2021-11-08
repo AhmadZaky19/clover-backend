@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcryptjs = require("bcrypt");
 const helperWrapper = require("../../helper/wrapper");
 const authModel = require("./authModel");
+const userModel = require("../users/userModel");
 const { sendEmail, resetPassword } = require("../../helper/email/nodemailer");
 
 module.exports = {
@@ -124,7 +125,7 @@ module.exports = {
 	login: async (req, res) => {
 		try {
 			const { email, password } = req.body;
-			const checkUser = await authModel.getUserByEmail(email);
+			const checkUser = await userModel.getUserByEmail(email);
 
 			if (checkUser.length < 1) {
 				return helperWrapper.response(res, 404, "Email not registed", null);
@@ -205,7 +206,7 @@ module.exports = {
 	calbackForgotPassword: async function (request, response) {
 		try {
 			const { email } = request.body;
-			const user = await authModel.getUserByEmail(email);
+			const user = await userModel.getUserByEmail(email);
 			if (user.length < 1) {
 				return helperWrapper.response(response, 404, "user not found!", null);
 			}
