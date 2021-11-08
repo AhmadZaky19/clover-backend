@@ -4,6 +4,7 @@ const { hireInvitation } = require("../../helper/email/nodemailer");
 const deleteFile = require("../../helper/uploads");
 const { v4: uuid } = require("uuid");
 const bcrypt = require("bcrypt");
+const redis = require("../../config/redis");
 
 module.exports = {
   helloUser: async (request, response) => {
@@ -70,6 +71,12 @@ module.exports = {
 
       const result = await userModel.getAllUser();
 
+      redis.setex(
+        `getUser:${JSON.stringify(req.query)}`,
+        3600,
+        JSON.stringify({ result })
+      );
+
       helperResponse.response(res, 200, "Success Get All Users Data!", result);
     } catch (error) {
       helperResponse.response(res, 400, `Bad Request : ${error}`, null);
@@ -90,7 +97,9 @@ module.exports = {
         );
       }
 
-      helperResponse.response(res, 200, "Success Get User By Id!", result);
+      redis.setex(`getUser:${id}`, 3600, JSON.stringify(result));
+
+      helperResponse.response(res, 200, "Success Get User By Id", result);
     } catch (error) {
       helperResponse.response(res, 400, `Bad Request : ${error}`, null);
     }
