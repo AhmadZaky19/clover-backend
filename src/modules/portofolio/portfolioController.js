@@ -1,57 +1,22 @@
 const helperResponse = require("../../helper/wrapper");
-const userModel = require("./userModel");
-const { hireInvitation } = require("../../helper/email/nodemailer");
+const portfolioModel = require("./portfolioModel");
+const deleteFile = require("../../helper/upload/deleteFile");
 const { v4: uuid } = require("uuid");
+
 module.exports = {
-  helloUser: async (request, response) => {
-    response.send("Helo user!");
-  },
-  hirePekerja: async function (request, response) {
+  postPortfolio: async (req, res) => {
     try {
-      // user_id => decode token after login
-      const { user_id, tujuan_pesan, pesan } = request.body;
-      const setDataHire = { id: uuid(), user_id, tujuan_pesan, pesan };
-
-      for (const propertyForm in setDataHire) {
-        if (setDataHire[propertyForm] === "") {
-          return helperResponse.response(
-            response,
-            409,
-            "Lengkapi Form yang kosong...",
-            null
-          );
-        }
-      }
-      const dataHire = await userModel.postHirePekerja(setDataHire);
-
-      const optionsDataHire = {
-        to: "rinosatyaputra.id@gmail.com",
-        subject:
-          "Clover Hire, Congratulations, you have been chosen to be part of our partner company",
-        template: "index",
-        data: {
-          tujuan_pesan: dataHire.tujuan_pesan,
-          pesan: dataHire.pesan,
-        },
+      const { user_id, nama_aplikasi, link_repository } = req.body;
+      console.log(req.body);
+      const setData = {
+        id: uuid(),
+        user_id,
+        nama_aplikasi,
+        link_repository,
+        image: req.file ? req.file.filename : null,
       };
-      console.log(optionsDataHire);
-      await hireInvitation(optionsDataHire);
-
-      helperResponse.response(
-        response,
-        200,
-        "Success Send Message to worker!",
-        dataHire
-      );
-    } catch (error) {
-      helperResponse.response(response, 400, `Bad Request : ${error}`, null);
-    }
-  },
-  postExperience: async (req, res) => {
-    try {
-      const { body } = req;
-      const setData = { id: uuid(), ...body };
-      const result = await userModel.postExperience(setData);
+      const result = await portfolioModel.postPortfolioCreate(setData);
+      //   console.log(result);
       return helperResponse.response(res, 200, "Success Create Data", result);
     } catch (error) {
       return helperResponse.response(
@@ -62,10 +27,10 @@ module.exports = {
       );
     }
   },
-  getExperienceByUserId: async (req, res) => {
+  getPortfolioByUserId: async (req, res) => {
     try {
       const { user_id } = req.params;
-      const result = await userModel.getExperienceByUserId(user_id);
+      const result = await portfolioModel.getPortfolioByUserId(user_id);
       if (result.length < 1) {
         return helperResponse.response(
           res,
@@ -89,10 +54,10 @@ module.exports = {
       );
     }
   },
-  getExperienceById: async (req, res) => {
+  getPortfolioById: async (req, res) => {
     try {
       const { id } = req.params;
-      const result = await userModel.getExperienceById(id);
+      const result = await portfolioModel.getPortfolioById(id);
       if (result.length < 1) {
         return helperResponse.response(
           res,
@@ -111,10 +76,10 @@ module.exports = {
       );
     }
   },
-  updateExperience: async (req, res) => {
+  updatePortfolio: async (req, res) => {
     try {
       const { id } = req.params;
-      const checkId = await userModel.getExperienceById(id);
+      const checkId = await portfolioModel.getPortfolioById(id);
       if (checkId.length < 1) {
         return helperResponse.response(
           res,
@@ -123,9 +88,13 @@ module.exports = {
           null
         );
       }
-      const { body } = req;
+      const { user_id, nama_aplikasi, link_repository } = req.body;
       const setData = {
-        ...body,
+        id: uuid(),
+        user_id,
+        nama_aplikasi,
+        link_repository,
+        image: req.file ? req.file.filename : null,
         updatedAt: new Date(Date.now()),
       };
 
@@ -134,8 +103,11 @@ module.exports = {
           delete setData[data];
         }
       }
+      if (req.file.filename && checkId[0].image) {
+        deleteFile(`../../../public/images/${checkId[0].image}`);
+      }
 
-      const result = await userModel.updateExperience(setData, id);
+      const result = await portfolioModel.updatePortfolio(setData, id);
       return helperResponse.response(res, 200, "Success update data", result);
     } catch (error) {
       return helperResponse.response(
@@ -146,10 +118,10 @@ module.exports = {
       );
     }
   },
-  deleteExperience: async (req, res) => {
+  deletePortfolio: async (req, res) => {
     try {
       const { id } = req.params;
-      const checkId = await userModel.getExperienceById(id);
+      const checkId = await portfolioModel.getPortfolioById(id);
       if (checkId.length < 1) {
         return helperResponse.response(
           res,
@@ -158,7 +130,10 @@ module.exports = {
           null
         );
       }
-      const result = await userModel.deleteExperience(id);
+      if (req.file.filename && checkId[0].image) {
+        deleteFile(`../../../public/images/${checkId[0].image}`);
+      }
+      const result = await userModel.deletePortfolio(id);
       return helperResponse.response(res, 200, "Success update data", result);
     } catch (error) {
       return helperResponse.response(

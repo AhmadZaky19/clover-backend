@@ -1,25 +1,12 @@
 const connection = require("../../config/mysql");
 
 module.exports = {
-  postHirePekerja: (data) =>
+  postPortfolioCreate: (data) =>
     new Promise((resolve, reject) => {
-      connection.query("INSERT INTO hire SET ?", data, (error, results) => {
-        if (!error) {
-          const newResults = {
-            ...data,
-          };
-          resolve(newResults);
-        } else {
-          reject(new Error(`Message ${error.message}`));
-        }
-      });
-    }),
-  postExperience: (data) =>
-    new Promise((resolve, reject) => {
-      connection.query("INSERT INTO experience SET ?", data, (err, result) => {
+      connection.query("INSERT INTO portfolio SET ?", data, (err, result) => {
         if (!err) {
           const newResult = {
-            id: result.insertId,
+            // id: result.insertId,
             ...data,
           };
           resolve(newResult);
@@ -28,10 +15,10 @@ module.exports = {
         }
       });
     }),
-  getExperienceByUserId: (user_id) =>
+  getPortfolioByUserId: (user_id) =>
     new Promise((resolve, reject) => {
       connection.query(
-        "SELECT * FROM experience WHERE user_id = ?",
+        "SELECT * FROM portfolio WHERE user_id = ?",
         user_id,
         (error, result) => {
           if (!error) {
@@ -42,10 +29,10 @@ module.exports = {
         }
       );
     }),
-  getExperienceById: (id) =>
+  getPortfolioById: (id) =>
     new Promise((resolve, reject) => {
       connection.query(
-        "SELECT * FROM experience WHERE id = ?",
+        "SELECT * FROM portfolio WHERE id = ?",
         id,
         (error, result) => {
           if (!error) {
@@ -56,10 +43,10 @@ module.exports = {
         }
       );
     }),
-  updateExperience: (data, id) =>
+  updatePortfolio: (data, id) =>
     new Promise((resolve, reject) => {
       connection.query(
-        "UPDATE experience SET ? WHERE id = ?",
+        "UPDATE portfolio SET ? WHERE id = ?",
         [data, id],
         (error) => {
           if (!error) {
@@ -74,9 +61,9 @@ module.exports = {
         }
       );
     }),
-  deleteExperience: (id) =>
+  deletePortfolio: (id) =>
     new Promise((resolve, reject) => {
-      connection.query("DELETE FROM experience WHERE id = ?", id, (error) => {
+      connection.query("DELETE FROM portfolio WHERE id = ?", id, (error) => {
         if (!error) {
           resolve(id);
         } else {

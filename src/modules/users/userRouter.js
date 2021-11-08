@@ -2,15 +2,16 @@ const express = require("express");
 const Router = express.Router();
 const userController = require("./userController");
 const {
-	auth,
-	isWorker,
-	isRecruiter,
+  auth,
+  isWorker,
+  isRecruiter,
 } = require("../../middleware/authentication");
 
 Router.get("/", auth, isRecruiter, userController.helloUser);
 Router.post("/hire-pekerja", auth, userController.hirePekerja);
-Router.post("/experience", userController.postExperience)
-Router.get("/experience/:user_id", userController.getExperienceByUserId)
-Router.patch("/experience/:id", userController.updateExperience)
-Router.delete("/experience/:id", userController.deleteExperience)
+Router.post("/experience", userController.postExperience);
+Router.get("/experience/:user_id", userController.getExperienceByUserId);
+Router.patch("/experience/:id", userController.updateExperience);
+Router.delete("/experience/:id", userController.deleteExperience);
+
 module.exports = Router;
