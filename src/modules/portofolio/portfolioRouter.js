@@ -8,9 +8,21 @@ const {
 } = require("../../middleware/authentication");
 const middlewareUpload = require("../../middleware/uploaduser");
 
-Router.post("/", middlewareUpload, portfolioController.postPortfolio);
+Router.post(
+  "/",
+  auth,
+  isWorker,
+  middlewareUpload,
+  portfolioController.postPortfolio
+);
 Router.get("/:user_id", portfolioController.getPortfolioByUserId);
-Router.patch("/:id", middlewareUpload, portfolioController.updatePortfolio);
-Router.delete("/:id", portfolioController.deletePortfolio);
+Router.patch(
+  "/:id",
+  auth,
+  isWorker,
+  middlewareUpload,
+  portfolioController.updatePortfolio
+);
+Router.delete("/:id", auth, isWorker, portfolioController.deletePortfolio);
 
 module.exports = Router;
