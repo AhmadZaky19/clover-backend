@@ -15,10 +15,10 @@ module.exports = {
       });
     }),
 
-  getAllUser: (limit, offset, searchSkill, jobStatus, sortByName) =>
+  getAllUser: (limit, offset, searchSkill, jobStatus, role, sortByName) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM users WHERE COALESCE(skill, '') LIKE '%${searchSkill}%' AND COALESCE(jobStatus, '') LIKE '%${jobStatus}%' ORDER BY ${sortByName} LIMIT ? OFFSET ?`,
+        `SELECT * FROM users WHERE COALESCE(skill, '') LIKE '%${searchSkill}%' AND COALESCE(jobStatus, '') LIKE '%${jobStatus}%' AND role LIKE '%${role}%' ORDER BY ${sortByName} LIMIT ? OFFSET ?`,
         [limit, offset],
         (error, results) => {
           if (!error) {

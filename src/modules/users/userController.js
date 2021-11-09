@@ -63,6 +63,7 @@ module.exports = {
         sortBySkill,
         sortByLocation,
         jobStatus,
+        role,
       } = req.query;
 
       page = Number(page) || 1;
@@ -70,6 +71,7 @@ module.exports = {
       sortByName = sortByName || "nama ASC";
       searchSkill = searchSkill || "";
       jobStatus = jobStatus || "";
+      role = role || "";
 
       let offset = page * limit - limit;
       const totalData = await userModel.getCountUser(searchSkill, jobStatus);
@@ -92,30 +94,33 @@ module.exports = {
         offset,
         searchSkill,
         jobStatus,
-        sortByName,
-        sortBySkill,
-        sortByLocation
+        role,
+        sortByName
       );
-
-      const newResult = result.map((item) => {
-        const newSkill = item.skill.split(", ");
-
-        const newData = {
-          ...item,
-          skill: newSkill,
-        };
-
-        return newData;
-      });
 
       if (result.length < 1) {
         return helperResponse.response(res, 404, `Data not found !`, null);
       }
 
+      const newResult = result.map((item) => {
+        if (item.skill) {
+          const newSkill = item.skill.split(", ");
+
+          const newData = {
+            ...item,
+            skill: newSkill,
+          };
+
+          return newData;
+        }
+
+        return item;
+      });
+
       redis.setex(
         `getUser:${JSON.stringify(req.query)}`,
         3600,
-        JSON.stringify({ result, pageInfo })
+        JSON.stringify({ newResult, pageInfo })
       );
 
       helperResponse.response(
@@ -154,7 +159,8 @@ module.exports = {
 
   updateUser: async (req, res) => {
     try {
-      const { id } = req.decodeToken;
+      // const { id } = req.decodeToken;
+      const { id } = req.params;
       const {
         nama,
         email,
