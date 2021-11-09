@@ -13,46 +13,28 @@ const {
   clearUserRedis,
 } = require("../../middleware/redis");
 
-// Router.get("/", auth, isRecruiter, userController.helloUser);
 Router.get(
   "/",
-  // auth,
+  auth,
   getUserRedis,
   // isRecruiter,
   userController.getAllUser
 );
-Router.get(
-  "/:id",
-  // auth,
-  getUserByIdRedis,
-  userController.getUserById
-);
-Router.patch(
-  // "/",
-  "/:id",
-  // auth,
-  clearUserRedis,
-  userController.updateUser
-);
-
+Router.get("/:id", auth, getUserByIdRedis, userController.getUserById);
+Router.patch("/", auth, clearUserRedis, userController.updateUser);
 Router.patch(
   "/update-image",
-  // auth,
+  auth,
   middlewareMulter,
   clearUserRedis,
   userController.updateImage
 );
-
 Router.patch(
   "/update-password",
-  // auth,
+  auth,
   clearUserRedis,
   userController.updatePassword
 );
 Router.post("/hire-pekerja", auth, isRecruiter, userController.hirePekerja);
 
-Router.post("/experience", userController.postExperience);
-Router.get("/experience/:user_id", userController.getExperienceByUserId);
-Router.patch("/experience/:id", userController.updateExperience);
-Router.delete("/experience/:id", userController.deleteExperience);
 module.exports = Router;

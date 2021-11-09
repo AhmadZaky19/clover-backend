@@ -94,4 +94,47 @@ module.exports = {
 				}
 			});
 		}),
+
+	resetPassword: (data) =>
+		new Promise((resolve, reject) => {
+			let transporter = nodemailer.createTransport({
+				host: "smtp.gmail.com",
+				port: 587,
+				secure: false,
+				auth: {
+					user: "test.spam.rino@gmail.com",
+					pass: "testdemoapp",
+				},
+			});
+
+			transporter.use(
+				"compile",
+				hbs({
+					viewEngine: {
+						extname: ".html",
+						partialsDir: path.resolve("./src/templates/forgot-password"),
+						defaultLayout: false,
+					},
+					viewPath: path.resolve("./src/templates/forgot-password"),
+					extName: ".html",
+				})
+			);
+
+			const emailOptions = {
+				from: '"Clover Hire ☘️" <cloverhire@gmail.com>', // sender email
+				to: data.to, // receiver list,
+				template: data.template,
+				subject: data.subject,
+				context: data.data,
+			};
+
+			// send email transport object
+			transporter.sendMail(emailOptions, (error, info) => {
+				if (error) {
+					reject(error);
+				} else {
+					resolve(info);
+				}
+			});
+		}),
 };

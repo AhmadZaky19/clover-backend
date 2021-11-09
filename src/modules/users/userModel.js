@@ -79,19 +79,7 @@ module.exports = {
         }
       );
     }),
-  postHirePekerja: (data) =>
-    new Promise((resolve, reject) => {
-      connection.query("INSERT INTO hire SET ?", data, (error, results) => {
-        if (!error) {
-          const newResults = {
-            ...data,
-          };
-          resolve(newResults);
-        } else {
-          reject(new Error(`Message ${error.message}`));
-        }
-      });
-    }),
+
   postExperience: (data) =>
     new Promise((resolve, reject) => {
       connection.query("INSERT INTO experience SET ?", data, (err, result) => {
@@ -152,6 +140,7 @@ module.exports = {
         }
       );
     }),
+
   deleteExperience: (id) =>
     new Promise((resolve, reject) => {
       connection.query("DELETE FROM experience WHERE id = ?", id, (error) => {
@@ -161,5 +150,35 @@ module.exports = {
           reject(new Error(`SQL : ${error.sqlMessage}`));
         }
       });
+    }),
+
+  getUserByEmail: (email) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT * FROM users WHERE email = ?",
+        email,
+        (error, result) => {
+          if (!error) {
+            resolve(result);
+          } else {
+            reject(new Error(`SQL : ${error.sqlMessage}`));
+          }
+        }
+      );
+    }),
+
+  getPekerjaById: (id) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT * FROM users WHERE id = ?",
+        id,
+        (error, results) => {
+          if (!error) {
+            resolve(results);
+          } else {
+            reject(new Error(`SQL : ${error.message}`));
+          }
+        }
+      );
     }),
 };
