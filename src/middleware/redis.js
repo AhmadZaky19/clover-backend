@@ -11,7 +11,7 @@ module.exports = {
           res,
           200,
           "Success get data user",
-          newResult.result,
+          newResult.newResult,
           newResult.pageInfo
         );
       }

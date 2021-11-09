@@ -15,10 +15,10 @@ module.exports = {
       });
     }),
 
-  getAllUser: (limit, offset, searchSkill, jobStatus, sortByName) =>
+  getAllUser: (limit, offset, searchSkill, jobStatus, sortByName, role) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM users WHERE COALESCE(skill, '') LIKE '%${searchSkill}%' AND COALESCE(jobStatus, '') LIKE '%${jobStatus}%' ORDER BY ${sortByName} LIMIT ? OFFSET ?`,
+        `SELECT * FROM users WHERE COALESCE(skill, '') LIKE '%${searchSkill}%' AND COALESCE(jobStatus, '') LIKE '%${jobStatus}%' AND role LIKE '%${role}%' ORDER BY ${sortByName} LIMIT ? OFFSET ?`,
         [limit, offset],
         (error, results) => {
           if (!error) {
@@ -52,7 +52,7 @@ module.exports = {
         (error, results) => {
           if (!error) {
             const newResults = results;
-            delete newResults[0].password;
+            // delete newResults[0].password;
             resolve(newResults);
           } else {
             reject(new Error(`Message ${error.message}`));
@@ -78,88 +78,5 @@ module.exports = {
           }
         }
       );
-    }),
-  postHirePekerja: (data) =>
-    new Promise((resolve, reject) => {
-      connection.query("INSERT INTO hire SET ?", data, (error, results) => {
-        if (!error) {
-          const newResults = {
-            ...data,
-          };
-          resolve(newResults);
-        } else {
-          reject(new Error(`Message ${error.message}`));
-        }
-      });
-    }),
-  postExperience: (data) =>
-    new Promise((resolve, reject) => {
-      connection.query("INSERT INTO experience SET ?", data, (err, result) => {
-        if (!err) {
-          const newResult = {
-            id: result.insertId,
-            ...data,
-          };
-          resolve(newResult);
-        } else {
-          reject(new Error(`SQL : ${err.sqlMessage}`));
-        }
-      });
-    }),
-  getExperienceByUserId: (user_id) =>
-    new Promise((resolve, reject) => {
-      connection.query(
-        "SELECT * FROM experience WHERE user_id = ?",
-        user_id,
-        (error, result) => {
-          if (!error) {
-            resolve(result);
-          } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
-          }
-        }
-      );
-    }),
-  getExperienceById: (id) =>
-    new Promise((resolve, reject) => {
-      connection.query(
-        "SELECT * FROM experience WHERE id = ?",
-        id,
-        (error, result) => {
-          if (!error) {
-            resolve(result);
-          } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
-          }
-        }
-      );
-    }),
-  updateExperience: (data, id) =>
-    new Promise((resolve, reject) => {
-      connection.query(
-        "UPDATE experience SET ? WHERE id = ?",
-        [data, id],
-        (error) => {
-          if (!error) {
-            const newResult = {
-              id,
-              ...data,
-            };
-            resolve(newResult);
-          } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
-          }
-        }
-      );
-    }),
-  deleteExperience: (id) =>
-    new Promise((resolve, reject) => {
-      connection.query("DELETE FROM experience WHERE id = ?", id, (error) => {
-        if (!error) {
-          resolve(id);
-        } else {
-          reject(new Error(`SQL : ${error.sqlMessage}`));
-        }
-      });
     }),
 };

@@ -55,21 +55,14 @@ module.exports = {
 
   getAllUser: async (req, res) => {
     try {
-      let {
-        page,
-        limit,
-        searchSkill,
-        sortByName,
-        sortBySkill,
-        sortByLocation,
-        jobStatus,
-      } = req.query;
+      let { page, limit, searchSkill, sortByName, jobStatus, role } = req.query;
 
       page = Number(page) || 1;
       limit = Number(limit) || 4;
       sortByName = sortByName || "nama ASC";
       searchSkill = searchSkill || "";
       jobStatus = jobStatus || "";
+      role = role || "";
 
       let offset = page * limit - limit;
       const totalData = await userModel.getCountUser(searchSkill, jobStatus);
@@ -93,29 +86,39 @@ module.exports = {
         searchSkill,
         jobStatus,
         sortByName,
-        sortBySkill,
-        sortByLocation
+        role
       );
-
-      const newResult = result.map((item) => {
-        const newSkill = item.skill.split(", ");
-
-        const newData = {
-          ...item,
-          skill: newSkill,
-        };
-
-        return newData;
-      });
 
       if (result.length < 1) {
         return helperResponse.response(res, 404, `Data not found !`, null);
       }
 
+      const newResult = result.map((item) => {
+        if (item.skill) {
+          const newSkill = item.skill.split(", ");
+
+          const newData = {
+            ...item,
+            skill: newSkill,
+          };
+
+          delete newData.password;
+          return newData;
+        }
+
+        const newData = {
+          ...item,
+          skill: item.skill,
+        };
+
+        delete newData.password;
+        return newData;
+      });
+
       redis.setex(
         `getUser:${JSON.stringify(req.query)}`,
         3600,
-        JSON.stringify({ result, pageInfo })
+        JSON.stringify({ newResult, pageInfo })
       );
 
       helperResponse.response(
@@ -143,6 +146,8 @@ module.exports = {
           null
         );
       }
+
+      delete result[0].password;
 
       redis.setex(`getUser:${id}`, 3600, JSON.stringify(result));
 
@@ -303,129 +308,6 @@ module.exports = {
         res,
         400,
         `Bad request : ${error.message}`,
-        null
-      );
-    }
-  },
-
-  postExperience: async (req, res) => {
-    try {
-      const { body } = req;
-      const setData = { id: uuid(), ...body };
-      const result = await userModel.postExperience(setData);
-      return helperResponse.response(res, 200, "Success Create Data", result);
-    } catch (error) {
-      return helperResponse.response(
-        res,
-        400,
-        `Bad Request(${error.message})`,
-        null
-      );
-    }
-  },
-  getExperienceByUserId: async (req, res) => {
-    try {
-      const { user_id } = req.params;
-      const result = await userModel.getExperienceByUserId(user_id);
-      if (result.length < 1) {
-        return helperResponse.response(
-          res,
-          404,
-          `User Id ${user_id} Not Found!`,
-          null
-        );
-      }
-      return helperResponse.response(
-        res,
-        200,
-        "Success Get By User Id",
-        result
-      );
-    } catch (error) {
-      return helperResponse.response(
-        res,
-        400,
-        `Bad Request (${error.message})`,
-        null
-      );
-    }
-  },
-  getExperienceById: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const result = await userModel.getExperienceById(id);
-      if (result.length < 1) {
-        return helperResponse.response(
-          res,
-          404,
-          `Data by id ${id} not found!`,
-          null
-        );
-      }
-      return helperResponse.response(res, 200, "Success get by id", result);
-    } catch (error) {
-      return helperResponse.response(
-        res,
-        400,
-        `Bad request (${error.message})`,
-        null
-      );
-    }
-  },
-  updateExperience: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const checkId = await userModel.getExperienceById(id);
-      if (checkId.length < 1) {
-        return helperResponse.response(
-          res,
-          404,
-          `Data by id ${id} not found !`,
-          null
-        );
-      }
-      const { body } = req;
-      const setData = {
-        ...body,
-        updatedAt: new Date(Date.now()),
-      };
-
-      for (const data in setData) {
-        if (!setData[data]) {
-          delete setData[data];
-        }
-      }
-
-      const result = await userModel.updateExperience(setData, id);
-      return helperResponse.response(res, 200, "Success update data", result);
-    } catch (error) {
-      return helperResponse.response(
-        res,
-        400,
-        `Bad request (${error.message})`,
-        null
-      );
-    }
-  },
-  deleteExperience: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const checkId = await userModel.getExperienceById(id);
-      if (checkId.length < 1) {
-        return helperResponse.response(
-          res,
-          404,
-          `Data by id ${id} not found !`,
-          null
-        );
-      }
-      const result = await userModel.deleteExperience(id);
-      return helperResponse.response(res, 200, "Success update data", result);
-    } catch (error) {
-      return helperResponse.response(
-        res,
-        400,
-        `Bad request (${error.message})`,
         null
       );
     }
