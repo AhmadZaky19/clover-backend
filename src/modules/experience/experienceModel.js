@@ -64,14 +64,14 @@ module.exports = {
         }
       );
     }),
-  deleteExperience: (id) =>
-    new Promise((resolve, reject) => {
-      connection.query('DELETE FROM experience WHERE id = ?', id, (error) => {
-        if (!error) {
-          resolve(id);
-        } else {
-          reject(new Error(`SQL : ${error.sqlMessage}`));
-        }
-      });
-    })
+  // deleteExperience: (id) =>
+  //   new Promise((resolve, reject) => {
+  //     connection.query('DELETE FROM experience WHERE id = ?', id, (error) => {
+  //       if (!error) {
+  //         resolve(id);
+  //       } else {
+  //         reject(new Error(`SQL : ${error.sqlMessage}`));
+  //       }
+  //     });
+  //   })
 }
