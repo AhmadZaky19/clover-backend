@@ -5,13 +5,17 @@ const helperWrapper = require("../../helper/wrapper");
 const authModel = require("./authModel");
 const userModel = require("../users/userModel");
 const { sendEmail, resetPassword } = require("../../helper/email/nodemailer");
+const redis = require("../../config/redis");
 
 module.exports = {
 	registerPekerja: async (req, res) => {
 		try {
 			const { nama, email, noHandphone, password, confirmPassword } = req.body;
-
 			// PROSES PENGECEKAN EMAIL SUDAH PERNAH TERDAFTAR ATAU BLM DI DATABASE
+			const checkUser = await userModel.getUserByEmail(email);
+			if (checkUser.length > 0) {
+				return helperWrapper.response(res, 404, "email already exist", null);
+			}
 			// PROSES ENCRYPT PASSWORD
 			const hashPassword = await bcryptjs.hash(password, 10);
 			const setData = {
@@ -22,11 +26,9 @@ module.exports = {
 				password: hashPassword,
 				role: "Pekerja",
 			};
-
 			const dataEmail = setData.email;
-
 			const tokenEmail = jwt.sign({ dataEmail }, "Cl0v3RH1R3", {
-				expiresIn: "20s",
+				expiresIn: "1h",
 			});
 
 			// PROSES SEND EMAIL
@@ -85,6 +87,15 @@ module.exports = {
 				password: newPassword,
 				role: "Perekrut",
 			};
+			const checkUser = await userModel.getUserByEmail(email);
+			if (checkUser.length > 0) {
+				return helperWrapper.response(
+					response,
+					404,
+					"Email already exist",
+					null
+				);
+			}
 			for (const valueForm in setDataPerekrut) {
 				if (setDataPerekrut[valueForm] === "") {
 					return helperWrapper.response(
@@ -95,9 +106,9 @@ module.exports = {
 					);
 				}
 			}
-
+			const dataEmail = setDataPerekrut.email;
 			const tokenEmail = jwt.sign({ dataEmail }, "Cl0v3RH1R3", {
-				expiresIn: "20s",
+				expiresIn: "1h",
 			});
 
 			// PROSES SEND EMAIL
@@ -240,11 +251,25 @@ module.exports = {
 				},
 			};
 			await resetPassword(setDataEmail);
-			return helperWrapper.response(
+			helperWrapper.response(
 				response,
 				200,
 				"Please Check email, for confirm your email!",
 				null
+			);
+		} catch (error) {
+			return helperWrapper.response(
+				response,
+				400,
+				`Bad Request : ${error.message}`
+			);
+		}
+	},
+	callbackEmail: async function (request, response) {
+		try {
+			const { token, id } = request.params;
+			return response.redirect(
+				`http://localhost:3000/callback/confirm-password/${id}/${token}`
 			);
 		} catch (error) {
 			return helperWrapper.response(
@@ -289,6 +314,20 @@ module.exports = {
 					}
 				}
 			});
+		} catch (error) {
+			return helperWrapper.response(
+				response,
+				400,
+				`Bad Request : ${error.message}`
+			);
+		}
+	},
+	logout: async function (request, response) {
+		try {
+			let token = request.headers.authorization;
+			token = token.split(" ")[1];
+			redis.setex(`accessToken:${token}`, 3600 * 24, token);
+			return helperWrapper.response(response, 200, "Success Logout!", null);
 		} catch (error) {
 			return helperWrapper.response(
 				response,

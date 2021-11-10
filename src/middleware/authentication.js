@@ -1,5 +1,6 @@
 const helperWrapper = require("../helper/wrapper");
 const jwt = require("jsonwebtoken");
+const redis = require("../config/redis");
 module.exports = {
 	auth: (request, response, next) => {
 		let token = request.headers.authorization;
@@ -8,14 +9,22 @@ module.exports = {
 			return helperWrapper.response(response, 403, "Login First...");
 		}
 		token = token.split(" ")[1];
-
-		jwt.verify(token, "RAHASIA", (error, results) => {
-			if (error) {
-				return helperWrapper.response(response, 403, error.message);
-			} else {
+		redis.get(`accessToken:${token}`, (error, results) => {
+			if (!error && results !== null) {
+				return helperWrapper.response(
+					response,
+					403,
+					"Your Token is Destroy, please login back...",
+					null
+				);
+			}
+			jwt.verify(token, "RAHASIA", (error, results) => {
+				if (error) {
+					return helperWrapper.response(response, 403, error.message);
+				}
 				request.decodeToken = results;
 				next();
-			}
+			});
 		});
 	},
 	isWorker: (request, response, next) => {
