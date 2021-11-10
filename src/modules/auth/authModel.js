@@ -32,7 +32,7 @@ module.exports = {
 		}),
 	activateEmailUser: (status, id) =>
 		new Promise((resolve, reject) => {
-			connection.query(
+			const query = connection.query(
 				"UPDATE users SET status = ? WHERE id = ?",
 				[status, id],
 				(error, results) => {
@@ -47,6 +47,7 @@ module.exports = {
 					}
 				}
 			);
+			console.log(query.sql);
 		}),
 	updatePassword: (password, id) =>
 		new Promise((resolve, reject) => {

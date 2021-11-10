@@ -27,9 +27,13 @@ module.exports = {
 				role: "Pekerja",
 			};
 			const dataEmail = setData.email;
-			const tokenEmail = jwt.sign({ dataEmail }, "Cl0v3RH1R3", {
-				expiresIn: "1h",
-			});
+			const tokenEmail = jwt.sign(
+				{ dataEmail },
+				`${process.env.JWT_SECRET_ACTIVATE_EMAIL}`,
+				{
+					expiresIn: process.env.JWT_EXPIRED_ACTIVATE_EMAIL,
+				}
+			);
 
 			// PROSES SEND EMAIL
 			const setDataEmail = {
@@ -107,9 +111,13 @@ module.exports = {
 				}
 			}
 			const dataEmail = setDataPerekrut.email;
-			const tokenEmail = jwt.sign({ dataEmail }, "Cl0v3RH1R3", {
-				expiresIn: "1h",
-			});
+			const tokenEmail = jwt.sign(
+				{ dataEmail },
+				process.env.JWT_SECRET_ACTIVATE_EMAIL,
+				{
+					expiresIn: process.env.JWT_EXPIRED_ACTIVATE_EMAIL,
+				}
+			);
 
 			// PROSES SEND EMAIL
 			const setDataEmail = {
@@ -170,8 +178,8 @@ module.exports = {
 			// PROSES UTAMA MEMBUAT TOKEN MENGGUNAKAN JWT (DATA YANG MAU DIUBAH, KATA KUNCI, LAMA TOKEN BISA DIGUNAKAN )
 			const payload = checkUser[0];
 			delete payload.password;
-			const token = jwt.sign({ ...payload }, "RAHASIA", {
-				expiresIn: "24h",
+			const token = jwt.sign({ ...payload }, process.env.JWT_SECRET, {
+				expiresIn: process.env.JWT_EXPIRED,
 			});
 
 			if (checkUser[0].status !== "active") {
@@ -204,24 +212,28 @@ module.exports = {
 			if (!id) {
 				return helperWrapper.response(response, 404, "tidak ditemukan!", null);
 			}
-			jwt.verify(token, "Cl0v3RH1R3", async (error, results) => {
-				if (error) {
-					return helperWrapper.response(
-						response,
-						409,
-						"Masa waktu aktifasi sudah habis, silahkan refresh aktifasi kembali!",
-						null
-					);
-				} else {
-					const users = await authModel.activateEmailUser(statusActive, id);
-					return helperWrapper.response(
-						response,
-						200,
-						"Sucessfully Activate Email!",
-						users
-					);
+			jwt.verify(
+				token,
+				`${process.env.JWT_SECRET_ACTIVATE_EMAIL}`,
+				async (error, results) => {
+					if (error) {
+						return helperWrapper.response(
+							response,
+							409,
+							"Masa waktu aktifasi sudah habis, silahkan refresh aktifasi kembali!",
+							null
+						);
+					} else {
+						const users = await authModel.activateEmailUser(statusActive, id);
+						return helperWrapper.response(
+							response,
+							200,
+							"Sucessfully Activate Email!",
+							users
+						);
+					}
 				}
-			});
+			);
 		} catch (error) {
 			return helperWrapper.response(
 				response,
@@ -237,7 +249,9 @@ module.exports = {
 			if (user.length < 1) {
 				return helperWrapper.response(response, 404, "user not found!", null);
 			}
-			const key = jwt.sign({ email }, "CL0V3RH1R3", { expiresIn: "1h" });
+			const key = jwt.sign({ email }, process.env.JWT_SECRET, {
+				expiresIn: process.env.JWT_EXPIRED_ACTIVATE_EMAIL,
+			});
 			const keyUserId = user[0].id;
 			const setDataEmail = {
 				to: email,
@@ -283,7 +297,7 @@ module.exports = {
 		try {
 			const { token, id } = request.params;
 			const { newPassword, confirmPassword } = request.body;
-			jwt.verify(token, "CL0V3RH1R3", async (error, results) => {
+			jwt.verify(token, process.env.JWT_SECRET, async (error, results) => {
 				if (error) {
 					return helperWrapper.response(
 						response,

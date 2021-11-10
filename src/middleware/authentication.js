@@ -18,7 +18,7 @@ module.exports = {
 					null
 				);
 			}
-			jwt.verify(token, "RAHASIA", (error, results) => {
+			jwt.verify(token, process.env.JWT_SECRET, (error, results) => {
 				if (error) {
 					return helperWrapper.response(response, 403, error.message);
 				}

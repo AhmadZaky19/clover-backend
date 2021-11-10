@@ -5,12 +5,12 @@ module.exports = {
 	sendEmail: (data) =>
 		new Promise((resolve, reject) => {
 			let transporter = nodemailer.createTransport({
-				host: "smtp.gmail.com",
+				host: process.env.HOST_SMTP,
 				port: 587,
 				secure: false,
 				auth: {
-					user: "test.spam.rino@gmail.com",
-					pass: "testdemoapp",
+					user: process.env.EMAIL_AUTH_SMTP,
+					pass: process.env.PASS_AUTH_SMTP,
 				},
 			});
 

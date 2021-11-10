@@ -7,302 +7,323 @@ const bcrypt = require("bcrypt");
 const redis = require("../../config/redis");
 
 module.exports = {
-	hirePekerja: async function (request, response) {
-		try {
-			// user_id => decode token after login
-			const userLoggedId = request.decodeToken.id;
-			const { user_id, tujuan_pesan, pesan } = request.body;
-			const setDataHire = { id: uuid(), user_id, tujuan_pesan, pesan };
-			const perekrut = await userModel.getUserById(userLoggedId);
-			const pekerja = await userModel.getPekerjaById(user_id);
-			const emailPekerja = pekerja[0].email;
-			for (const propertyForm in setDataHire) {
-				if (setDataHire[propertyForm] === "") {
-					return helperResponse.response(
-						response,
-						409,
-						"Lengkapi Form yang kosong...",
-						null
-					);
-				}
-			}
-			const dataHire = await userModel.postHirePekerja(setDataHire);
-			let setDataToObj;
-			perekrut.map((value) => {
-				setDataToObj = value;
-			});
+  helloUser: async (request, response) => {
+    response.send("Helo user!");
+  },
+  hirePekerja: async function (request, response) {
+    try {
+      // user_id => decode token after login
+      const userLoggedId = request.decodeToken.id;
+      const { user_id, tujuan_pesan, pesan } = request.body;
+      const setDataHire = { id: uuid(), user_id, tujuan_pesan, pesan };
+      const perekrut = await userModel.getUserById(userLoggedId);
+      const pekerja = await userModel.getPekerjaById(user_id);
+      const emailPekerja = pekerja[0].email;
+      for (const propertyForm in setDataHire) {
+        if (setDataHire[propertyForm] === "") {
+          return helperResponse.response(
+            response,
+            409,
+            "Lengkapi Form yang kosong...",
+            null
+          );
+        }
+      }
+      const dataHire = await userModel.postHirePekerja(setDataHire);
+      let setDataToObj;
+      perekrut.map((value) => {
+        setDataToObj = value;
+      });
 
-			const setNewDataHire = {
-				perushaan: setDataToObj.perusahaan,
-				bidangPerusahaan: setDataToObj.bidangPerusahaan,
-				pesan: dataHire.pesan,
-				tujuan_pesan: dataHire.tujuan_pesan,
-			};
+      const setNewDataHire = {
+        perushaan: setDataToObj.perusahaan,
+        bidangPerusahaan: setDataToObj.bidangPerusahaan,
+        pesan: dataHire.pesan,
+        tujuan_pesan: dataHire.tujuan_pesan,
+      };
 
-			const optionsDataHire = {
-				to: emailPekerja,
-				subject:
-					"Clover Hire, Congratulations, you have been chosen to be part of our partner company",
-				template: "index",
-				data: {
-					perusahaan: setNewDataHire.perushaan,
-					bidangPerusahaan: setNewDataHire.bidangPerusahaan,
-					tujuan_pesan: setNewDataHire.tujuan_pesan,
-					pesan: setNewDataHire.pesan,
-				},
-			};
-			await hireInvitation(optionsDataHire);
+      const optionsDataHire = {
+        to: emailPekerja,
+        subject:
+          "Clover Hire, Congratulations, you have been chosen to be part of our partner company",
+        template: "index",
+        data: {
+          perusahaan: setNewDataHire.perushaan,
+          bidangPerusahaan: setNewDataHire.bidangPerusahaan,
+          tujuan_pesan: setNewDataHire.tujuan_pesan,
+          pesan: setNewDataHire.pesan,
+        },
+      };
+      await hireInvitation(optionsDataHire);
 
-			helperResponse.response(
-				response,
-				200,
-				"Success Send Message to worker!"
-				// dataHire
-			);
-		} catch (error) {
-			helperResponse.response(response, 400, `Bad Request : ${error}`, null);
-		}
-	},
-	getAllUser: async (req, res) => {
-		try {
-			let { page, limit, searchSkill, sortByName, role, jobStatus } = req.query;
+      helperResponse.response(
+        response,
+        200,
+        "Success Send Message to worker!"
+        // dataHire
+      );
+    } catch (error) {
+      helperResponse.response(response, 400, `Bad Request : ${error}`, null);
+    }
+  },
 
-			page = Number(page) || 1;
-			limit = Number(limit) || 4;
-			sortByName = sortByName || "nama ASC";
-			searchSkill = searchSkill || "";
-			jobStatus = jobStatus || "";
-			role = role || "";
+  getAllUser: async (req, res) => {
+    try {
+      let { page, limit, searchSkill, sortByName, jobStatus, role } = req.query;
 
-			let offset = page * limit - limit;
-			const totalData = await userModel.getCountUser(searchSkill, jobStatus);
-			const totalPage = Math.ceil(totalData / limit);
+      page = Number(page) || 1;
+      limit = Number(limit) || 4;
+      sortByName = sortByName || "nama ASC";
+      searchSkill = searchSkill || "";
+      jobStatus = jobStatus || "";
+      role = role || "";
 
-			if (totalPage < page) {
-				offset = 0;
-				page = 1;
-			}
+      let offset = page * limit - limit;
+      const totalData = await userModel.getCountUser(searchSkill, jobStatus);
+      const totalPage = Math.ceil(totalData / limit);
 
-			const pageInfo = {
-				page,
-				totalPage,
-				limit,
-				totalData,
-			};
+      if (totalPage < page) {
+        offset = 0;
+        page = 1;
+      }
 
-			const result = await userModel.getAllUser(
-				limit,
-				offset,
-				searchSkill,
-				jobStatus,
-				role,
-				sortByName
-			);
+      const pageInfo = {
+        page,
+        totalPage,
+        limit,
+        totalData,
+      };
 
-			const newResult = result.map((item) => {
-				const newSkill = item.skill.split(",");
-				const newData = {
-					...item,
-					skill: newSkill,
-				};
-				return newData;
-			});
+      const result = await userModel.getAllUser(
+        limit,
+        offset,
+        searchSkill,
+        jobStatus,
+        sortByName,
+        role
+      );
 
-			console.log(newResult);
+      if (result.length < 1) {
+        return helperResponse.response(res, 404, `Data not found !`, null);
+      }
 
-			if (result.length < 1) {
-				return helperResponse.response(res, 404, `Data not found !`, null);
-			}
+      const newResult = result.map((item) => {
+        if (item.skill) {
+          const newSkill = item.skill.split(", ");
 
-			redis.setex(
-				`getUser:${JSON.stringify(req.query)}`,
-				3600,
-				JSON.stringify({ newResult, pageInfo })
-			);
+          const newData = {
+            ...item,
+            skill: newSkill,
+          };
 
-			helperResponse.response(
-				res,
-				200,
-				"Success Get All Users Data!",
-				newResult,
-				pageInfo
-			);
-		} catch (error) {
-			helperResponse.response(res, 400, `Bad Request : ${error}`, null);
-		}
-	},
-	getUserById: async (req, res) => {
-		try {
-			const { id } = req.params;
-			const result = await userModel.getUserById(id);
+          delete newData.password;
+          return newData;
+        }
 
-			if (result.length < 1) {
-				return helperResponse.response(
-					res,
-					404,
-					`User by id ${id} not found !`,
-					null
-				);
-			}
+        const newData = {
+          ...item,
+          skill: item.skill,
+        };
 
-			redis.setex(`getUser:${id}`, 3600, JSON.stringify(result));
+        delete newData.password;
+        return newData;
+      });
 
-			helperResponse.response(res, 200, "Success Get User By Id", result);
-		} catch (error) {
-			helperResponse.response(res, 400, `Bad Request : ${error}`, null);
-		}
-	},
-	updateUser: async (req, res) => {
-		try {
-			const { id } = req.decodeToken;
-			const {
-				nama,
-				email,
-				perusahaan,
-				bidangPerusahaan,
-				jobDesk,
-				jobStatus,
-				noHandPhone,
-				skill,
-				domisili,
-				description,
-				instagram,
-				github,
-				gitlab,
-				linkedin,
-			} = req.body;
+      redis.setex(
+        `getUser:${JSON.stringify(req.query)}`,
+        3600,
+        JSON.stringify({ newResult, pageInfo })
+      );
 
-			const user = await userModel.getUserById(id);
-			if (user.length < 1) {
-				return helperResponse.response(
-					res,
-					404,
-					`User by id ${id} not found`,
-					null
-				);
-			}
+      helperResponse.response(
+        res,
+        200,
+        "Success Get All Users Data!",
+        newResult,
+        pageInfo
+      );
+    } catch (error) {
+      helperResponse.response(res, 400, `Bad Request : ${error}`, null);
+    }
+  },
 
-			const setData = {
-				nama,
-				email,
-				perusahaan,
-				bidangPerusahaan,
-				jobDesk,
-				jobStatus,
-				noHandPhone,
-				skill,
-				domisili,
-				description,
-				instagram,
-				github,
-				gitlab,
-				linkedin,
-				updatedAt: new Date(Date()),
-			};
+  getUserById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const result = await userModel.getUserById(id);
 
-			Object.keys(setData).forEach((property) => {
-				if (!setData[property]) {
-					delete setData[property];
-				}
-			});
+      if (result.length < 1) {
+        return helperResponse.response(
+          res,
+          404,
+          `User by id ${id} not found !`,
+          null
+        );
+      }
 
-			const result = await userModel.updateUser(setData, id);
+      delete result[0].password;
 
-			return helperResponse.response(
-				res,
-				200,
-				`Success update profile`,
-				result
-			);
-		} catch (error) {
-			return helperResponse.response(
-				res,
-				400,
-				`Bad request : ${error.message}`,
-				null
-			);
-		}
-	},
-	updateImage: async (req, res) => {
-		try {
-			const { id } = req.decodeToken;
+      redis.setex(`getUser:${id}`, 3600, JSON.stringify(result));
 
-			const user = await userModel.getUserById(id);
-			if (user.length < 1) {
-				return helperResponse.response(
-					res,
-					404,
-					`User by id ${id} not found`,
-					null
-				);
-			}
+      helperResponse.response(res, 200, "Success Get User By Id", result);
+    } catch (error) {
+      helperResponse.response(res, 400, `Bad Request : ${error}`, null);
+    }
+  },
 
-			if (user[0].image) {
-				deleteFile(`public/uploads/user/${user[0].image}`);
-			}
+  updateUser: async (req, res) => {
+    try {
+      const { id } = req.decodeToken;
+      const {
+        nama,
+        email,
+        perusahaan,
+        bidangPerusahaan,
+        jobDesk,
+        jobStatus,
+        noHandPhone,
+        skill,
+        domisili,
+        description,
+        instagram,
+        github,
+        gitlab,
+        linkedin,
+      } = req.body;
 
-			const setData = {
-				image: req.file ? req.file.filename : null,
-				updatedAt: new Date(Date()),
-			};
+      const user = await userModel.getUserById(id);
+      if (user.length < 1) {
+        return helperResponse.response(
+          res,
+          404,
+          `User by id ${id} not found`,
+          null
+        );
+      }
 
-			const result = await userModel.updateUser(setData, id);
-			return helperResponse.response(
-				res,
-				200,
-				"Success update image user",
-				result
-			);
-		} catch (error) {
-			return helperResponse.response(
-				res,
-				400,
-				`Bad request : ${error.message}`,
-				null
-			);
-		}
-	},
-	updatePassword: async (req, res) => {
-		try {
-			const { id } = req.decodeToken;
-			const { newPassword, confirmPassword } = req.body;
+      const setData = {
+        nama,
+        email,
+        perusahaan,
+        bidangPerusahaan,
+        jobDesk,
+        jobStatus,
+        noHandPhone,
+        skill,
+        domisili,
+        description,
+        instagram,
+        github,
+        gitlab,
+        linkedin,
+        updatedAt: new Date(Date()),
+      };
 
-			const user = await userModel.getUserById(id);
-			if (user.length < 1) {
-				return helperResponse.response(
-					res,
-					404,
-					`User by id ${id} not found`,
-					null
-				);
-			}
+      Object.keys(setData).forEach((property) => {
+        if (!setData[property]) {
+          delete setData[property];
+        }
+      });
 
-			if (newPassword !== confirmPassword) {
-				return helperResponse.response(
-					res,
-					400,
-					`Password does not match`,
-					null
-				);
-			}
+      const result = await userModel.updateUser(setData, id);
 
-			const salt = await bcrypt.genSalt(10);
-			const passwordHash = await bcrypt.hash(newPassword, salt);
+      return helperResponse.response(
+        res,
+        200,
+        `Success update profile`,
+        result
+      );
+    } catch (error) {
+      return helperResponse.response(
+        res,
+        400,
+        `Bad request : ${error.message}`,
+        null
+      );
+    }
+  },
 
-			const setData = { password: passwordHash };
+  updateImage: async (req, res) => {
+    try {
+      const { id } = req.decodeToken;
 
-			const result = await userModel.updateUser(setData, id);
+      const user = await userModel.getUserById(id);
+      if (user.length < 1) {
+        return helperResponse.response(
+          res,
+          404,
+          `User by id ${id} not found`,
+          null
+        );
+      }
 
-			return helperResponse.response(res, 200, `Success update password`, {
-				id: result.id,
-			});
-		} catch (error) {
-			return helperResponse.response(
-				res,
-				400,
-				`Bad request : ${error.message}`,
-				null
-			);
-		}
-	},
+      if (user[0].image) {
+        deleteFile(`public/uploads/user/${user[0].image}`);
+      }
+
+      const setData = {
+        image: req.file ? req.file.filename : null,
+        updatedAt: new Date(Date()),
+      };
+
+      const result = await userModel.updateUser(setData, id);
+      return helperResponse.response(
+        res,
+        200,
+        "Success update image user",
+        result
+      );
+    } catch (error) {
+      return helperResponse.response(
+        res,
+        400,
+        `Bad request : ${error.message}`,
+        null
+      );
+    }
+  },
+
+  updatePassword: async (req, res) => {
+    try {
+      const { id } = req.decodeToken;
+      const { newPassword, confirmPassword } = req.body;
+
+      const user = await userModel.getUserById(id);
+      if (user.length < 1) {
+        return helperResponse.response(
+          res,
+          404,
+          `User by id ${id} not found`,
+          null
+        );
+      }
+
+      if (newPassword !== confirmPassword) {
+        return helperResponse.response(
+          res,
+          400,
+          `Password does not match`,
+          null
+        );
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(newPassword, salt);
+
+      const setData = { password: passwordHash };
+
+      const result = await userModel.updateUser(setData, id);
+
+      return helperResponse.response(res, 200, `Success update password`, {
+        id: result.id,
+      });
+    } catch (error) {
+      return helperResponse.response(
+        res,
+        400,
+        `Bad request : ${error.message}`,
+        null
+      );
+    }
+  },
 };
