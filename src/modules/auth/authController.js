@@ -283,7 +283,7 @@ module.exports = {
 		try {
 			const { token, id } = request.params;
 			return response.redirect(
-				`http://localhost:3000/callback/confirm-password/${id}/${token}`
+				`${process.env.BASE_URL_PROD}/callback/confirm-password/${id}/${token}`
 			);
 		} catch (error) {
 			return helperWrapper.response(
