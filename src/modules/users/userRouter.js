@@ -31,5 +31,4 @@ Router.patch(
 	userController.updatePassword
 );
 Router.post("/hire-pekerja", auth, isRecruiter, userController.hirePekerja);
-
 module.exports = Router;
