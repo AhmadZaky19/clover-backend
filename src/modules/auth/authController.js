@@ -259,7 +259,7 @@ module.exports = {
 				template: "index",
 				data: {
 					email,
-					callbackEndPoint: `https://clovher-hire.herokuapp.com/auth/forgot-password/${keyUserId}/${key}`,
+					callbackEndPoint: `https://clover-hire.netlify.app/auth/forgot-password/${keyUserId}/${key}`,
 				},
 			};
 			await resetPassword(setDataEmail);
@@ -281,7 +281,7 @@ module.exports = {
 		try {
 			const { token, id } = request.params;
 			return response.redirect(
-				`https://clovher-hire.herokuapp.com/callback/confirm-password/${id}/${token}`
+				`https://clover-hire.netlify.app/callback/confirm-password/${id}/${token}`
 			);
 		} catch (error) {
 			return helperWrapper.response(
