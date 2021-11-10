@@ -259,9 +259,7 @@ module.exports = {
 				template: "index",
 				data: {
 					email,
-					callbackEndPoint: `http://${request.get(
-						"host"
-					)}/auth/forgot-password/${keyUserId}/${key}`,
+					callbackEndPoint: `https://clovher-hire.herokuapp.com/auth/forgot-password/${keyUserId}/${key}`,
 				},
 			};
 			await resetPassword(setDataEmail);
@@ -283,7 +281,7 @@ module.exports = {
 		try {
 			const { token, id } = request.params;
 			return response.redirect(
-				`http://localhost:3000/callback/confirm-password/${id}/${token}`
+				`https://clovher-hire.herokuapp.com/callback/confirm-password/${id}/${token}`
 			);
 		} catch (error) {
 			return helperWrapper.response(
