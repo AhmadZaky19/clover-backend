@@ -172,7 +172,7 @@ module.exports = {
 			);
 			// console.log(checkUser[0]);
 			if (!passwordUser) {
-				return helperWrapper.response(res, 400, "Wrong Password", null);
+				return helperWrapper.response(res, 400, "Wrong password", null);
 			}
 
 			// PROSES UTAMA MEMBUAT TOKEN MENGGUNAKAN JWT (DATA YANG MAU DIUBAH, KATA KUNCI, LAMA TOKEN BISA DIGUNAKAN )
