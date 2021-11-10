@@ -79,4 +79,34 @@ module.exports = {
         }
       );
     }),
+
+  getUserByEmail: (email) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT * FROM users WHERE email = ?",
+        email,
+        (error, result) => {
+          if (!error) {
+            resolve(result);
+          } else {
+            reject(new Error(`SQL : ${error.sqlMessage}`));
+          }
+        }
+      );
+    }),
+
+  getPekerjaById: (id) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT * FROM users WHERE id = ?",
+        id,
+        (error, results) => {
+          if (!error) {
+            resolve(results);
+          } else {
+            reject(new Error(`SQL : ${error.message}`));
+          }
+        }
+      );
+    }),
 };
