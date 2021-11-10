@@ -21,8 +21,8 @@ app.use(express.static("public"));
 
 app.use("/", RouterNavigation);
 
-app.use("*", (request, response) => {
-	response.status(404).send("Path not found!");
+app.use("*", (req, res) => {
+	res.status(404).send("Path not found!");
 });
 
 app.listen(port, () => {
