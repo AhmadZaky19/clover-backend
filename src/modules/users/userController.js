@@ -10,7 +10,6 @@ module.exports = {
   helloUser: async (request, response) => {
     response.send("Helo user!");
   },
-
   hirePekerja: async function (request, response) {
     try {
       // user_id => decode token after login

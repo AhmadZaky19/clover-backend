@@ -11,6 +11,15 @@ module.exports = {
       const { nama, email, noHandphone, password, confirmPassword } = req.body;
 
       // PROSES PENGECEKAN EMAIL SUDAH PERNAH TERDAFTAR ATAU BLM DI DATABASE
+      const checkUser = await authModel.getUserByEmail(email);
+      if (checkUser.length > 0) {
+        return helperWrapper.response(
+          res,
+          404,
+          `User with email ${email} already exist`,
+          null
+        );
+      }
       // PROSES ENCRYPT PASSWORD
       const hashPassword = await bcryptjs.hash(password, 10);
       const setData = {
