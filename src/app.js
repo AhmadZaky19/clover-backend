@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 3001;
+
 const morgan = require("morgan");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -21,10 +21,11 @@ app.use(express.static("public"));
 
 app.use("/", RouterNavigation);
 
-app.use("*", (req, res) => {
-	res.status(404).send("Path not found!");
+app.use("*", (request, response) => {
+	response.status(404).send("Path not found!");
 });
 
+const port = process.env.PORT || 3001;
 app.listen(port, () => {
 	console.log(`Server running running at port ${port}`);
 });
