@@ -259,9 +259,7 @@ module.exports = {
 				template: "index",
 				data: {
 					email,
-					callbackEndPoint: `http://${request.get(
-						"host"
-					)}/auth/forgot-password/${keyUserId}/${key}`,
+					callbackEndPoint: `${process.env.BASE_URL_PROD}/auth/forgot-password/${keyUserId}/${key}`,
 				},
 			};
 			await resetPassword(setDataEmail);
