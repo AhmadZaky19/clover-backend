@@ -6,13 +6,13 @@ module.exports = {
     redis.get(`getUser:${JSON.stringify(req.query)}`, (err, result) => {
       if (!err && result !== null) {
         console.log("Data ada didalam redis");
-        const newResult = JSON.parse(result);
+        const newResultData = JSON.parse(result);
         return helperWrapper.response(
           res,
           200,
           "Success get data user",
-          newResult.newResult,
-          newResult.pageInfo
+          newResultData.newResult,
+          newResultData.pageInfo
         );
       }
       console.log("Data tidak ada didalam redis");

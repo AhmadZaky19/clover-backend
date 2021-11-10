@@ -7,6 +7,66 @@ const bcrypt = require("bcrypt");
 const redis = require("../../config/redis");
 
 module.exports = {
+  helloUser: async (request, response) => {
+    response.send("Helo user!");
+  },
+  hirePekerja: async function (request, response) {
+    try {
+      // user_id => decode token after login
+      const userLoggedId = request.decodeToken.id;
+      const { user_id, tujuan_pesan, pesan } = request.body;
+      const setDataHire = { id: uuid(), user_id, tujuan_pesan, pesan };
+      const perekrut = await userModel.getUserById(userLoggedId);
+      const pekerja = await userModel.getPekerjaById(user_id);
+      const emailPekerja = pekerja[0].email;
+      for (const propertyForm in setDataHire) {
+        if (setDataHire[propertyForm] === "") {
+          return helperResponse.response(
+            response,
+            409,
+            "Lengkapi Form yang kosong...",
+            null
+          );
+        }
+      }
+      const dataHire = await userModel.postHirePekerja(setDataHire);
+      let setDataToObj;
+      perekrut.map((value) => {
+        setDataToObj = value;
+      });
+
+      const setNewDataHire = {
+        perushaan: setDataToObj.perusahaan,
+        bidangPerusahaan: setDataToObj.bidangPerusahaan,
+        pesan: dataHire.pesan,
+        tujuan_pesan: dataHire.tujuan_pesan,
+      };
+
+      const optionsDataHire = {
+        to: emailPekerja,
+        subject:
+          "Clover Hire, Congratulations, you have been chosen to be part of our partner company",
+        template: "index",
+        data: {
+          perusahaan: setNewDataHire.perushaan,
+          bidangPerusahaan: setNewDataHire.bidangPerusahaan,
+          tujuan_pesan: setNewDataHire.tujuan_pesan,
+          pesan: setNewDataHire.pesan,
+        },
+      };
+      await hireInvitation(optionsDataHire);
+
+      helperResponse.response(
+        response,
+        200,
+        "Success Send Message to worker!"
+        // dataHire
+      );
+    } catch (error) {
+      helperResponse.response(response, 400, `Bad Request : ${error}`, null);
+    }
+  },
+
   getAllUser: async (req, res) => {
     try {
       let { page, limit, searchSkill, sortByName, jobStatus, role } = req.query;
@@ -39,8 +99,8 @@ module.exports = {
         offset,
         searchSkill,
         jobStatus,
-        role,
-        sortByName
+        sortByName,
+        role
       );
 
       if (result.length < 1) {
@@ -56,10 +116,17 @@ module.exports = {
             skill: newSkill,
           };
 
+          delete newData.password;
           return newData;
         }
 
-        return item;
+        const newData = {
+          ...item,
+          skill: item.skill,
+        };
+
+        delete newData.password;
+        return newData;
       });
 
       redis.setex(
@@ -94,6 +161,8 @@ module.exports = {
         );
       }
 
+      delete result[0].password;
+
       redis.setex(`getUser:${id}`, 3600, JSON.stringify(result));
 
       helperResponse.response(res, 200, "Success Get User By Id", result);
@@ -104,8 +173,7 @@ module.exports = {
 
   updateUser: async (req, res) => {
     try {
-      // const { id } = req.decodeToken;
-      const { id } = req.params;
+      const { id } = req.decodeToken;
       const {
         nama,
         email,
@@ -256,58 +324,6 @@ module.exports = {
         `Bad request : ${error.message}`,
         null
       );
-    }
-  },
-
-  hirePekerja: async function (request, response) {
-    try {
-      // user_id => decode token after login
-      const userLoggedId = request.decodeToken.id;
-      const { user_id, tujuan_pesan, pesan } = request.body;
-      const setDataHire = { id: uuid(), user_id, tujuan_pesan, pesan };
-      const perekrut = await userModel.getUserById(userLoggedId);
-      const pekerja = await userModel.getPekerjaById(user_id);
-      const emailPekerja = pekerja[0].email;
-      for (const propertyForm in setDataHire) {
-        if (setDataHire[propertyForm] === "") {
-          return helperResponse.response(
-            response,
-            409,
-            "Lengkapi Form yang kosong...",
-            null
-          );
-        }
-      }
-      const dataHire = await userModel.postHirePekerja(setDataHire);
-      let setDataToObj;
-      perekrut.map((value) => {
-        setDataToObj = value;
-      });
-
-      const setNewDataHire = {
-        perushaan: setDataToObj.perusahaan,
-        bidangPerusahaan: setDataToObj.bidangPerusahaan,
-        pesan: dataHire.pesan,
-        tujuan_pesan: dataHire.tujuan_pesan,
-      };
-
-      const optionsDataHire = {
-        to: emailPekerja,
-        subject:
-          "Clover Hire, Congratulations, you have been chosen to be part of our partner company",
-        template: "index",
-        data: {
-          perusahaan: setNewDataHire.perushaan,
-          bidangPerusahaan: setNewDataHire.bidangPerusahaan,
-          tujuan_pesan: setNewDataHire.tujuan_pesan,
-          pesan: setNewDataHire.pesan,
-        },
-      };
-      await hireInvitation(optionsDataHire);
-
-      helperResponse.response(response, 200, "Success Send Message to worker!");
-    } catch (error) {
-      helperResponse.response(response, 400, `Bad Request : ${error}`, null);
     }
   },
 };

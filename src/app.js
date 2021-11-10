@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const port = 3001;
@@ -21,9 +22,9 @@ app.use(express.static("public"));
 app.use("/", RouterNavigation);
 
 app.use("*", (request, response) => {
-	response.status(404).send("Path not found!");
+  response.status(404).send("Path not found!");
 });
 
 app.listen(port, () => {
-	console.log(`Server running running at port ${port}`);
+  console.log(`Server running running at port ${port}`);
 });
