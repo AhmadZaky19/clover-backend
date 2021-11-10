@@ -34,13 +34,6 @@ module.exports = {
 				template: data.template,
 				subject: data.subject,
 				context: data.data,
-				attachments: [
-					{
-						filename: "mail-box.png",
-						path: `${__dirname}/../../../public/images/mail-box.png`,
-						cid: "mail-box",
-					},
-				],
 			};
 
 			// send email transport object
