@@ -79,7 +79,7 @@ module.exports = {
       role = role || "";
 
       let offset = page * limit - limit;
-      const totalData = await userModel.getCountUser(searchSkill, jobStatus);
+      const totalData = await userModel.getCountUser(searchSkill, jobStatus,role);
       const totalPage = Math.ceil(totalData / limit);
 
       if (totalPage < page) {
