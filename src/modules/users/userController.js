@@ -72,14 +72,18 @@ module.exports = {
 			let { page, limit, searchSkill, sortByName, jobStatus, role } = req.query;
 
 			page = Number(page) || 1;
-			limit = Number(limit) || 4;
+			limit = Number(limit) || 3;
 			sortByName = sortByName || "nama ASC";
 			searchSkill = searchSkill || "";
 			jobStatus = jobStatus || "";
 			role = role || "";
 
 			let offset = page * limit - limit;
-			const totalData = await userModel.getCountUser(searchSkill, jobStatus);
+			const totalData = await userModel.getCountUser(
+				searchSkill,
+				jobStatus,
+				role
+			);
 			const totalPage = Math.ceil(totalData / limit);
 
 			if (totalPage < page) {
