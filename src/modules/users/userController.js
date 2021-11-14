@@ -114,7 +114,6 @@ module.exports = {
 			const newResult = result.map((item) => {
 				if (item.skill) {
 					const newSkill = item.skill.split(",");
-
 					const newData = {
 						...item,
 						skill: newSkill,

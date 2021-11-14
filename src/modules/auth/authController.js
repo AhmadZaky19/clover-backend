@@ -172,7 +172,7 @@ module.exports = {
 			);
 			// console.log(checkUser[0]);
 			if (!passwordUser) {
-				return helperWrapper.response(res, 400, "Wrong password", null);
+				return helperWrapper.response(res, 400, "Wrong Password", null);
 			}
 
 			// PROSES UTAMA MEMBUAT TOKEN MENGGUNAKAN JWT (DATA YANG MAU DIUBAH, KATA KUNCI, LAMA TOKEN BISA DIGUNAKAN )
@@ -259,7 +259,11 @@ module.exports = {
 				template: "index",
 				data: {
 					email,
-					callbackEndPoint: `${process.env.BASE_URL_PROD}/auth/forgot-password/${keyUserId}/${key}`,
+					callbackEndPoint: `${
+						process.env.PRODUCTION_DEVELOPMENT === "dev"
+							? process.env.BASE_URL_DEV
+							: process.env.BASE_URL_PROD
+					}/auth/forgot-password/${keyUserId}/${key}`,
 				},
 			};
 			await resetPassword(setDataEmail);
@@ -281,7 +285,11 @@ module.exports = {
 		try {
 			const { token, id } = request.params;
 			return response.redirect(
-				`${process.env.BASE_URL_PROD}/callback/confirm-password/${id}/${token}`
+				`${
+					process.env.PRODUCTION_DEVELOPMENT === "dev"
+						? process.env.BASE_URL_DEV
+						: process.env.BASE_URL_PROD
+				}/callback/confirm-password/${id}/${token}`
 			);
 		} catch (error) {
 			return helperWrapper.response(

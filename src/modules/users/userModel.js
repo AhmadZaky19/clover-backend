@@ -33,7 +33,7 @@ module.exports = {
 	getCountUser: (searchSkill, jobStatus, role) =>
 		new Promise((resolve, reject) => {
 			connection.query(
-				`SELECT COUNT(*) AS total FROM users WHERE COALESCE(skill, '') LIKE '%${searchSkill}%' AND COALESCE(jobStatus, '') LIKE '%${jobStatus}%' AND role LIKE '%${role}%'`,
+				`SELECT COUNT(*) AS total FROM users WHERE COALESCE(skill, '') LIKE '%${searchSkill}%' AND COALESCE(jobStatus, '') LIKE '%${jobStatus}%' AND role LIKE '%${role}%' `,
 				(error, results) => {
 					if (!error) {
 						resolve(results[0].total);
