@@ -130,9 +130,6 @@ module.exports = {
           null
         );
       }
-      if (req.file.filename && checkId[0].image) {
-        deleteFile(`../../../public/images/${checkId[0].image}`);
-      }
       const result = await userModel.deletePortfolio(id);
       return helperResponse.response(res, 200, "Success update data", result);
     } catch (error) {
