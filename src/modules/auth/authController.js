@@ -20,6 +20,25 @@ module.exports = {
           null
         );
       }
+      const newPassword = bcryptjs.hashSync(password, 10);
+      const setDataPekerja = {
+        id: uuidv4(),
+        nama,
+        email,
+        noHandphone,
+        password: newPassword,
+        role: "pekerja",
+      };
+      for (const valueForm in setDataPekerja) {
+        if (setDataPerekrut[valueForm] === "") {
+          return helperWrapper.response(
+            response,
+            409,
+            "Field tidak boleh kosong...",
+            null
+          );
+        }
+      }
       // PROSES ENCRYPT PASSWORD
       const hashPassword = await bcryptjs.hash(password, 10);
       const setData = {
@@ -137,6 +156,15 @@ module.exports = {
 
       if (checkUser.length < 1) {
         return helperWrapper.response(res, 404, "Email not registed", null);
+      }
+
+      if (email.length < 1 || password.length < 1) {
+        return helperWrapper.response(
+          res,
+          400,
+          "All input must be filled",
+          null
+        );
       }
 
       const passwordUser = await bcryptjs.compare(
