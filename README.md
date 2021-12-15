@@ -20,8 +20,38 @@ npm i
 npm run dev
 ```
 
-#### This is a repository for backend projects or app data sources
+## Contributors
 
+#### Fullstack
 
+  <a href="https://github.com/riyaraa">
+  <img src="https://github.com/riyaraa.png?size=50">
+  </a>
+  <a href="https://github.com/Walidnurudin">
+  <img src="https://github.com/Walidnurudin.png?size=50">
+  </a>
+
+#### Frontend
+
+  <a href="https://github.com/AhmadZaky19">
+  <img src="https://github.com/AhmadZaky19.png?size=50">
+  </a>
+  <a href="https://github.com/AndreasCKurniawan">
+  <img src="https://github.com/AndreasCKurniawan.png?size=50">
+  </a>
+
+#### Backend
+
+  <a href="https://github.com/mrfachri19">
+  <img src="https://github.com/mrfachri19.png?size=50">
+  </a>
+  <a href="https://github.com/Novianaa">
+  <img src="https://github.com/Novianaa.png?size=50">
+  </a>
+<br/>
+<br/>
+<br/>
+
+### This is a repository for backend projects or app data sources
 
 **Clover Hire Team 2021**
